@@ -1,0 +1,8 @@
+
+#vidStream {
+    object-fit: fill;
+    border: 3px solid black; 
+    cursor: none;
+    width: 90vw;
+    height: 90vh;   
+}
