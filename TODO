@@ -1,0 +1,11 @@
+[ ] UI shit
+    [ ] Center screen
+    [ ] Control screen size
+[ ] Add saves
+[ ] Separate to rooms
+[ ] Add HOTA
+[ ] Initiate docker on user entring a room
+[ ] Add keyboard control
+[ ] Reduce mouse/overall latency
+[ ] Control channel restarting a lot
+[ ] STUN server

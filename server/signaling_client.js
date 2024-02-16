@@ -25,7 +25,6 @@ async function createClass({io}) {
                 withCredentials: true
             });
             
-            // Signaling start
             this.socket.on('connect', () => {
                 if (connectClbk) {connectClbk(this)}
             });
@@ -36,6 +35,7 @@ async function createClass({io}) {
             
             this.socket.on("room_users", (data) => {
             });
+
             this.socket.on("getOffer", (sdp) => {
                 if(offerClbk) { offerClbk(sdp) }
             });

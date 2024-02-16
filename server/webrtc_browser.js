@@ -1,14 +1,8 @@
 import SignalingClient from './signaling_client.js'
 
 const pc_config = {
-    // iceServers: [
-    //     {
-    //         urls: "stun:stun.l.google.com:19302",
-    //     },
-    // ],
     bundlePolicy: "max-bundle"
 };
-
 
 class RTCConnection {
     constructor({trackClbk}) {
@@ -22,7 +16,7 @@ class RTCConnection {
             },
             candidateClbk: (candidate) => {
                 console.log("candidateClbk", candidate)
-                this.pc.addIceCandidate(new RTCIceCandidate(candidate)).then(() => {
+                this.pc.addIceCandidate( new RTCIceCandidate(candidate) ).then(() => {
                     console.log("candidate add success");
                 });
             },
@@ -37,9 +31,9 @@ class RTCConnection {
         
         this.trackClbk = trackClbk
         this.controlChannel = null
-        this.controlChannelCreatedClbk = null
-        
+        this.controlChannelCreatedClbk = null    
     }
+
     async createAnswer(sdp){
         this.pc = new RTCPeerConnection(pc_config);
         
@@ -51,15 +45,21 @@ class RTCConnection {
                 )
             }
         }
+        
         this.pc.ontrack = this.trackClbk
         await this.pc.setRemoteDescription(sdp)
-        console.log("set remote description success");
+        
+        console.log("Set remote description success");
+        
         let local_sdp = await this.pc.createAnswer({
                     offerToReceiveVideo: true,
                     offerToReceiveAudio: true,
                 })
-        console.log("set local sdp")
+
+        console.log("Setting local sdp")
         this.pc.setLocalDescription(local_sdp);
+
+        console.log("Creating control channel")
         this.createControlChannel()
     };
 
@@ -69,6 +69,7 @@ class RTCConnection {
         }
         console.log("Opening Control Channel")
         let controlChannel = this.pc.createDataChannel("Controller");
+        
         controlChannel.addEventListener(
             "open",
             (event) =>{

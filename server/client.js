@@ -91,4 +91,66 @@ class Screen {
 
 }
 
+class Containter {
+    constructor({element_id, borderWidth}) {
+        this.element = document.getElementById(element_id)
+        this.borderWidth = borderWidth
+        
+        this.element.style.borderWidth = this.borderWidth + "px"
+
+        this.draggingX = false
+        this.draggingY = false
+        this.startHeight = null
+        this.startWidth = null
+
+        this.dragDirectionX = null
+        this.dragDirectionY
+        this.draggingStartPosition = null
+        
+        this.element.onmousedown = this.startDrag
+        document.onmousemove = this.drag
+        document.onmouseup = this.stopDrag
+    }
+
+    startDrag = (ev) => {
+        let catchEvent = false
+        if (ev.offsetX < this.borderWidth || this.element.offsetWidth - ev.offsetX - this.borderWidth  < this.borderWidth ) {
+            this.draggingX = true
+            this.startWidth = this.element.offsetWidth
+            this.draggingStartPosition = {x: ev.x, y: ev.y}
+            this.dragDirectionX = ev.offsetX < this.borderWidth ? -1 : 1
+            catchEvent = true
+        }
+        
+        if ( ev.offsetY < this.borderWidth || this.element.offsetHeight - ev.offsetY - this.borderWidth < this.borderWidth ) {
+            this.draggingY = true
+            this.startHeight = this.element.offsetHeight
+            this.draggingStartPosition = {x: ev.x, y: ev.y}
+            this.dragDirectionY = ev.offsetY < this.borderWidth ? -1 : 1
+            catchEvent = true
+        }
+        return !catchEvent
+    }
+
+    drag = (ev) => {
+        if (this.draggingX) {
+            let dx = ev.x - this.draggingStartPosition.x 
+            this.element.style.width = (this.startWidth + dx*2 * this.dragDirectionX) + "px";
+            return false
+        }
+        if (this.draggingY) {
+            let dy = ev.y - this.draggingStartPosition.y
+            this.element.style.height = (this.startHeight + dy * 2 * this.dragDirectionY) + "px";
+            return false
+        }
+    }
+
+    stopDrag = (ev) => {
+        this.draggingX = false
+        this.draggingY = false
+        return false
+    }
+}
+
 const screen = new Screen({target_element: "vidStream", targetHeight: 640, targetWidth: 800})
+const container = new Containter({element_id: "draggable", borderWidth: 10})

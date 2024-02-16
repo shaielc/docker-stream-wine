@@ -58,15 +58,15 @@ function createAudio() {
 }
 
 class PeerConnectionWrapper {
-    constructor({provider}) {
+    constructor({provider, videoConnection, audioConnection}) {
         this.pc = new nodeDataChannel.PeerConnection('pc', { iceServers: [] })
         this.provider = provider
         this.offered = false
 
         this.pc.onGatheringStateChange((state) => {
-            console.log("GatheringState:", state, this.pc.state())
+            console.log("Provider: GatheringState -", state, this.pc.state())
             if (state === "complete") {
-                console.log("Emit Offer")
+                console.log("Provider: Emit offer")
                 this.emitOffer(provider)
             }
         });
@@ -76,6 +76,25 @@ class PeerConnectionWrapper {
                 provider.controlChannelClbk(JSON.parse(msg))
             });
         });
+
+        this.videoTrack = this.pc.addTrack(createVideo());
+        this.listenerId = videoConnection.addListener((msg) => {
+            if (this.videoTrack.isOpen()) {
+                this.videoTrack.sendMessageBinary(msg)
+            }
+        })
+
+        this.audioTrack = this.pc.addTrack(createAudio())
+        this.listenerIdAudio = audioConnection.addListener((msg) =>{
+            if (this.audioTrack.isOpen()) {
+                this.audioTrack.sendMessageBinary(msg)
+            }
+        })
+        this.controlChannel = this.pc.createDataChannel("Controller")
+        this.pc.setLocalDescription()
+        if (this.pc.gatheringState() === "complete") {
+            this.emitOffer(this.provider);
+        }
     }
 
     emitOffer(provider) {
@@ -89,59 +108,41 @@ class PeerConnectionWrapper {
 
 class Provider {
     constructor() {
-        
         this.signalingClient = new SignalingClient({
             answerClbk: this.answerClbk,
             candidateClbk: this.candidateClbk,
-            // offerClbk: this.offerClbk,
             userJoinedClbk: this.userJoinedClbk,
             connectClbk: this.connectClbk
         });
+        
         this.wrapper = null;
     }
     connectClbk = () => {
         console.log("Provider", "Connected to Signaling")
-        
     }
+
     userJoinedClbk = (msg) => {
-        this.wrapper = new PeerConnectionWrapper({provider: this})
-        this.videoTrack = this.wrapper.pc.addTrack(createVideo());
-        this.listenerId = videoConnection.addListener((msg) => {
-            if (this.videoTrack.isOpen()) {
-                // console.log(msg)
-                this.videoTrack.sendMessageBinary(msg)
-            }
-        })
-
-        this.audioTrack = this.wrapper.pc.addTrack(createAudio())
-        this.listenerIdAudio = audioConnection.addListener((msg) =>{
-            if (this.audioTrack.isOpen()) {
-                this.audioTrack.sendMessageBinary(msg)
-            }
-        })
-        this.controlChannel = this.wrapper.pc.createDataChannel("Controller")
-        this.wrapper.pc.setLocalDescription()
-        if (this.wrapper.pc.gatheringState() === "complete") {
-            this.wrapper.emitOffer(this);
-        }
+        this.wrapper = new PeerConnectionWrapper({provider: this, audioConnection, videoConnection})
     }
+
     answerClbk = (msg) => {
-        console.log("answerClbk")
-        this.wrapper.pc.setRemoteDescription(msg.sdp, msg.type)
-
-        
+        console.log("Provider: answerClbk")
+        this.wrapper.pc.setRemoteDescription(msg.sdp, msg.type)    
     }
+
     candidateClbk = (candidate) => {
-        console.log("candidateClbk")
+        console.log("Provider: candidateClbk")
         this.wrapper.pc.addRemoteCandidate(candidate.candidate, candidate.sdpMid)
     }
+
     offerClbk= (msg) =>  {
-        console.log("offerClbk")
+        console.log("Provier: offerClbk")
         if (this.wrapper != null) {
             this.discard()
         }
         this.wrapper = new PeerConnectionWrapper({provider: this, msg})
     }
+
     controlChannelClbk = (msg) => {
         robotjs.moveMouse(msg.x, msg.y)
         if (msg.type == MouseEvents.CLICK) {
@@ -157,6 +158,7 @@ class Provider {
             return
         }
     }
+
     discard() {
         videoConnection.removeListener(this.listenerId)
     }
