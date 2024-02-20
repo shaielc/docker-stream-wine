@@ -10,6 +10,7 @@ body {
   text-align: center;
   width: 95vw;
   height: 95vh;
+  touch-action: none;
 }
 
 #draggable {
@@ -24,4 +25,5 @@ body {
     cursor: none;
     width: 100%;
     height: 100%;
+    touch-action: none;
 }

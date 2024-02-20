@@ -34,7 +34,7 @@ class Screen {
         this.firstClick = false
         this.conn = null
 
-        this.target_element.onclick = this.handleMouseClick
+        this.target_element.addEventListener("click", this.handleMouseClick)
         
     }
 
@@ -60,10 +60,10 @@ class Screen {
             trackClbk: this.trackClbk
         });
         unmute(this.target_element)
-        this.target_element.onmousemove = throttle(this.handleMouseMove, 10)
-        this.target_element.oncontextmenu = this.handleMouseRightClick
-        this.target_element.onmousedown = this.handleMouseDownEvent
-        this.target_element.onmouseup = this.handleMouseUpEvent
+        this.target_element.addEventListener("mousemove", throttle(this.handleMouseMove, 10))
+        this.target_element.addEventListener("contextmenu", this.handleMouseRightClick)
+        this.target_element.addEventListener("pointerdown",this.handleMouseDownEvent)
+        this.target_element.addEventListener("pointerup", this.handleMouseUpEvent)
         this.firstClick=true
     }
 
@@ -74,6 +74,7 @@ class Screen {
     }
 
     handleMouseDownEvent = (ev) => {
+        console.log(ev)
         this.handleMouseEvent(ev, btnToMouseEvent[ev.button], "down")
     }
 
@@ -82,6 +83,7 @@ class Screen {
     }
     
     handleMouseRightClick = (ev) => {
+        ev.preventDefault()
         return false
     }
 
@@ -106,10 +108,11 @@ class Containter {
         this.dragDirectionX = null
         this.dragDirectionY
         this.draggingStartPosition = null
-        
-        this.element.onmousedown = this.startDrag
-        document.onmousemove = this.drag
-        document.onmouseup = this.stopDrag
+
+        this.element.addEventListener("pointerdown", this.startDrag);
+        document.addEventListener("pointermove", this.drag);
+        document.addEventListener("pointerup", this.stopDrag);
+        this.element.addEventListener("contextmenu", (ev) => {ev.preventDefault(); return false});
     }
 
     startDrag = (ev) => {
@@ -117,7 +120,7 @@ class Containter {
         if (ev.offsetX < this.borderWidth || this.element.offsetWidth - ev.offsetX - this.borderWidth  < this.borderWidth ) {
             this.draggingX = true
             this.startWidth = this.element.offsetWidth
-            this.draggingStartPosition = {x: ev.x, y: ev.y}
+            this.draggingStartPosition = {x: ev.clientX, y: ev.clientY}
             this.dragDirectionX = ev.offsetX < this.borderWidth ? -1 : 1
             catchEvent = true
         }
@@ -125,30 +128,36 @@ class Containter {
         if ( ev.offsetY < this.borderWidth || this.element.offsetHeight - ev.offsetY - this.borderWidth < this.borderWidth ) {
             this.draggingY = true
             this.startHeight = this.element.offsetHeight
-            this.draggingStartPosition = {x: ev.x, y: ev.y}
+            this.draggingStartPosition = {x: ev.clientX, y: ev.clientY}
             this.dragDirectionY = ev.offsetY < this.borderWidth ? -1 : 1
             catchEvent = true
+        }
+        if (catchEvent) {
+            ev.preventDefault()
         }
         return !catchEvent
     }
 
     drag = (ev) => {
         if (this.draggingX) {
-            let dx = ev.x - this.draggingStartPosition.x 
+            let dx = ev.clientX - this.draggingStartPosition.x            
             this.element.style.width = (this.startWidth + dx*2 * this.dragDirectionX) + "px";
             return false
         }
         if (this.draggingY) {
-            let dy = ev.y - this.draggingStartPosition.y
+            let dy = ev.clientY - this.draggingStartPosition.y
             this.element.style.height = (this.startHeight + dy * 2 * this.dragDirectionY) + "px";
             return false
         }
     }
 
     stopDrag = (ev) => {
-        this.draggingX = false
-        this.draggingY = false
-        return false
+        if (this.draggingX || this.draggingY) {
+            this.draggingX = false
+            this.draggingY = false
+            ev.preventDefault()
+            return false
+        }
     }
 }
 
