@@ -79,7 +79,17 @@ class Screen {
     handleTouchDown  = (ev) => {
         this.touching = true;
         this.long_press = false;
+        setTimeout(() => this.handleLongPress(ev), 100)
     }
+
+    handleLongPress = (ev) => {
+        console.log("Long Press")
+        if (this.touching) {
+            this.long_press = true
+            this.handleMouseEvent(ev, MouseEvents.RIGHT_CLICK, "down")
+        }
+    }
+
     handleTouchUp = (ev) => { 
         if (this.long_press) {
             this.handleMouseEvent(ev, MouseEvents.RIGHT_CLICK, "up")
@@ -118,10 +128,6 @@ class Screen {
     }
     
     handleContext = (ev) => {
-        if (this.touching) {
-            this.long_press = true;
-            this.handleMouseEvent(ev, MouseEvents.RIGHT_CLICK, "down")
-        }
         ev.preventDefault()
         return false
     }

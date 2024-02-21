@@ -1,10 +1,12 @@
 let promise = null;
-const url = "http://localhost:9001"
 console.log(typeof io, (typeof io) === 'undefined')
+var url = null
 if (typeof io == 'undefined') {
     promise = import("socket.io-client")
+    url = "http://localhost:9001"
 } else {
     promise =new Promise((resolve) => resolve({io}));
+    url = window.location.host
 }
 
 async function createClass({io}) {
