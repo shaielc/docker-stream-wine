@@ -1,7 +1,9 @@
 [V] UI shit
     [V] Center screen
     [V] Control screen size
-[ ] Touch to mouse
+[v] Touch to mouse
+[ ] Fix: control channel closed too many times
+[ ] Provider display resolution should be sent in messages
 [ ] Add saves
 [ ] Separate to rooms
 [ ] Add HOTA

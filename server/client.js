@@ -39,6 +39,7 @@ class Screen {
     }
 
     translatePosition = ev => {
+        
         return {
             x: ev.offsetX / this.target_element.offsetWidth * this.targetWidth,
             y: ev.offsetY / this.target_element.offsetHeight * this.targetHeight
@@ -61,10 +62,12 @@ class Screen {
         });
         unmute(this.target_element)
         this.target_element.addEventListener("mousemove", throttle(this.handleMouseMove, 10))
-        this.target_element.addEventListener("contextmenu", this.handleMouseRightClick)
-        this.target_element.addEventListener("pointerdown",this.handleMouseDownEvent)
-        this.target_element.addEventListener("pointerup", this.handleMouseUpEvent)
+        this.target_element.addEventListener("contextmenu", this.handleContext)
+        this.target_element.addEventListener("pointerdown",this.handlePointerDown)
+        this.target_element.addEventListener("pointerup", this.handlePointerUp)
         this.firstClick=true
+        this.touching = false;
+        this.long_press = false;
     }
 
     handleMouseClick = (ev) => {
@@ -73,8 +76,40 @@ class Screen {
         }
     }
 
+    handleTouchDown  = (ev) => {
+        this.touching = true;
+        this.long_press = false;
+    }
+    handleTouchUp = (ev) => { 
+        if (this.long_press) {
+            this.handleMouseEvent(ev, MouseEvents.RIGHT_CLICK, "up")
+        }
+        else {
+            this.handleMouseEvent(ev, MouseEvents.CLICK, "down")
+            this.handleMouseEvent(ev, MouseEvents.CLICK, "up")
+        }
+        this.touching = false;
+        this.long_press = false;
+    }
+
+    handlePointerDown = (ev) => {
+        if (ev.pointerType == "mouse") {
+            this.handleMouseDownEvent(ev)
+        }
+        else if (ev.pointerType == "touch") {
+            this.handleTouchDown(ev)
+        }
+    }
+    handlePointerUp = (ev) => {
+        if (ev.pointerType == "mouse") {
+            this.handleMouseUpEvent(ev)
+        }
+        else if (ev.pointerType == "touch") {
+            this.handleTouchUp(ev)
+        }
+    }
+
     handleMouseDownEvent = (ev) => {
-        console.log(ev)
         this.handleMouseEvent(ev, btnToMouseEvent[ev.button], "down")
     }
 
@@ -82,7 +117,11 @@ class Screen {
         this.handleMouseEvent(ev, btnToMouseEvent[ev.button], "up")
     }
     
-    handleMouseRightClick = (ev) => {
+    handleContext = (ev) => {
+        if (this.touching) {
+            this.long_press = true;
+            this.handleMouseEvent(ev, MouseEvents.RIGHT_CLICK, "down")
+        }
         ev.preventDefault()
         return false
     }
@@ -161,5 +200,5 @@ class Containter {
     }
 }
 
-const screen = new Screen({target_element: "vidStream", targetHeight: 640, targetWidth: 800})
+const screen = new Screen({target_element: "vidStream", targetHeight: 600, targetWidth: 800})
 const container = new Containter({element_id: "draggable", borderWidth: 10})
