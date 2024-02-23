@@ -2,8 +2,10 @@
     [V] Center screen
     [V] Control screen size
 [v] Touch to mouse
+[v] Fix: mobile overflows down
 [ ] Fix: control channel closed too many times
 [ ] Provider display resolution should be sent in messages
+[ ] Get border width
 [ ] Add saves
 [ ] Separate to rooms
 [ ] Add HOTA
