@@ -3,14 +3,13 @@
     [V] Control screen size
 [v] Touch to mouse
 [v] Fix: mobile overflows down
-[ ] Fix: control channel closed too many times
+[v] Fix: control channel closed too many times
+[v] Get border width
+[v] Add saves
 [ ] Provider display resolution should be sent in messages
-[ ] Get border width
-[ ] Add saves
-[ ] Separate to rooms
 [ ] Add HOTA
-[ ] Initiate docker on user entring a room
 [ ] Add keyboard control
+[ ] Separate to rooms
+[ ] Initiate docker on user entring a room
 [ ] Reduce mouse/overall latency
-[ ] Control channel restarting a lot
 [ ] STUN server

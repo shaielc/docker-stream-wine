@@ -4,6 +4,20 @@ const pc_config = {
     bundlePolicy: "max-bundle"
 };
 
+function throttle(func, delay) {
+    let prev = 0;
+    return (...args) => {
+        let now = new Date().getTime();
+        if (now - prev > delay) {
+            prev = now;
+        }
+        else { 
+            return
+        }
+        return func(...args)
+    }
+}
+
 class RTCConnection {
     constructor({trackClbk}) {
         
@@ -43,6 +57,8 @@ class RTCConnection {
                 this.signalingClient.emitAnswer(
                     this.pc.localDescription
                 )
+                console.log("Creating control channel")
+                this.createControlChannel()
             }
         }
         
@@ -59,8 +75,7 @@ class RTCConnection {
         console.log("Setting local sdp")
         this.pc.setLocalDescription(local_sdp);
 
-        console.log("Creating control channel")
-        this.createControlChannel()
+        
     };
 
     createControlChannel() {
@@ -81,11 +96,12 @@ class RTCConnection {
         })
     }
     
-    sendCommand(command) {
+    sendCommand = (command) => {
         if (this.controlChannel == null){
             return
         }
         if (this.controlChannel.readyState === "closed") {
+            console.log("Control channel closed restarting")
             this.controlChannel = null;
             this.createControlChannel();
             return

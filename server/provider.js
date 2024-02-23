@@ -72,6 +72,7 @@ class PeerConnectionWrapper {
         });
         
         this.pc.onDataChannel((dc) => {
+            this.controlChannel = dc
             dc.onMessage((msg) => {
                 provider.controlChannelClbk(JSON.parse(msg))
             });

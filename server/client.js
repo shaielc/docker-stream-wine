@@ -5,20 +5,6 @@ function unmute(element) {
     element.muted = false;
 }
 
-function throttle(func, delay) {
-    let prev = 0;
-    return (...args) => {
-        let now = new Date().getTime();
-        if (now - prev > delay) {
-            prev = now;
-        }
-        else { 
-            return
-        }
-        return func(...args)
-    }
-}
-
 const btnToMouseEvent = {
     0: MouseEvents.CLICK,
     2: MouseEvents.RIGHT_CLICK,
@@ -61,7 +47,7 @@ class Screen {
             trackClbk: this.trackClbk
         });
         unmute(this.target_element)
-        this.target_element.addEventListener("mousemove", throttle(this.handleMouseMove, 10))
+        this.target_element.addEventListener("mousemove", this.handleMouseMove)
         this.target_element.addEventListener("contextmenu", this.handleContext)
         this.target_element.addEventListener("pointerdown",this.handlePointerDown)
         this.target_element.addEventListener("pointerup", this.handlePointerUp)
@@ -141,7 +127,7 @@ class Screen {
 class Containter {
     constructor({element_id, borderWidth}) {
         this.element = document.getElementById(element_id)
-        this.borderWidth = borderWidth
+        this.borderWidth = parseInt(getComputedStyle(this.element).borderWidth,10)
         
         this.element.style.borderWidth = this.borderWidth + "px"
 
@@ -184,16 +170,18 @@ class Containter {
     }
 
     drag = (ev) => {
+        let isDragging = false
         if (this.draggingX) {
             let dx = ev.clientX - this.draggingStartPosition.x            
             this.element.style.width = (this.startWidth + dx*2 * this.dragDirectionX) + "px";
-            return false
+            isDragging = true
         }
         if (this.draggingY) {
             let dy = ev.clientY - this.draggingStartPosition.y
             this.element.style.height = (this.startHeight + dy * 2 * this.dragDirectionY) + "px";
-            return false
+            isDragging = true
         }
+        return !(isDragging)
     }
 
     stopDrag = (ev) => {
@@ -207,4 +195,4 @@ class Containter {
 }
 
 const screen = new Screen({target_element: "vidStream", targetHeight: 600, targetWidth: 800})
-const container = new Containter({element_id: "draggable", borderWidth: 10})
+const container = new Containter({element_id: "draggable"})
