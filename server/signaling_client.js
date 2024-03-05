@@ -16,7 +16,8 @@ async function createClass({io}) {
             candidateClbk,
             offerClbk,
             connectClbk,
-            userJoinedClbk
+            userJoinedClbk,
+            resolutionClbk,
         }) {
             this.socket = io(url, {
                 transports: ['websocket', 'polling', 'flashsocket'],
@@ -47,6 +48,11 @@ async function createClass({io}) {
                 
             });
             this.socket.on("getCandidate", candidateClbk)
+            this.socket.on("getResolution",  resolutionClbk ?? (() => {}))
+        }
+
+        emitResolution(resolution) {
+            this.socket.emit("resolution", resolution)
         }
     
         emitCandidate(candidate) {

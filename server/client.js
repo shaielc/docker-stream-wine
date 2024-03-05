@@ -42,9 +42,15 @@ class Screen {
         this.handleMouseEvent(ev, MouseEvents.MOVE)
     }
 
+    resolutionClbk = (resolution) => {
+        this.targetHeight = resolution.height
+        this.targetWidth = resolution.width
+    }
+
     firstClickClbk = () => {
         this.conn = new RTCConnection({
-            trackClbk: this.trackClbk
+            trackClbk: this.trackClbk,
+            resolutionClbk: this.resolutionClbk
         });
         unmute(this.target_element)
         this.target_element.addEventListener("mousemove", this.handleMouseMove)

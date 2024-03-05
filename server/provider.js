@@ -8,6 +8,8 @@ import { createSocket } from 'dgram'
 
 robotjs.setMouseDelay(2)
 
+const [screenWidth,screenHeight, colorBits] = process.env.XVFB_RESOLUTION.split('x').map((v) => { return parseInt(v)})
+
 class StreamConnection {
     constructor({port, protocol="udp"}) {
         this.listeners = {}
@@ -124,6 +126,7 @@ class Provider {
 
     userJoinedClbk = (msg) => {
         this.wrapper = new PeerConnectionWrapper({provider: this, audioConnection, videoConnection})
+        this.signalingClient.emitResolution({width: screenWidth, height: screenHeight})
     }
 
     answerClbk = (msg) => {

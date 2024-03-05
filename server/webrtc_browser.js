@@ -19,7 +19,7 @@ function throttle(func, delay) {
 }
 
 class RTCConnection {
-    constructor({trackClbk}) {
+    constructor({trackClbk, resolutionClbk}) {
         
         this.pc = null
         
@@ -40,7 +40,8 @@ class RTCConnection {
             offerClbk: (msg) => {
                 console.log("offerClbk")
                 this.createAnswer(msg)   
-            }
+            },
+            resolutionClbk
         })
         
         this.trackClbk = trackClbk

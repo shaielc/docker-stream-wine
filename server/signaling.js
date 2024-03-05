@@ -41,6 +41,11 @@ export default class signaling {
                 console.log("candidate: " + socket.id);
             });
 
+            socket.on("resolution", resolution => {
+                console.log("Gor provider resolution", resolution)
+                socket.broadcast.emit("getResolution", resolution)
+            })
+
             socket.on("disconnect", () => {
                 const roomId = socketToRoom[socket.id];
                 let room = rooms[roomId];

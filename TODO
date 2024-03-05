@@ -6,7 +6,7 @@
 [v] Fix: control channel closed too many times
 [v] Get border width
 [v] Add saves
-[ ] Provider display resolution should be sent in messages
+[v] Provider display resolution should be sent in messages
 [ ] Add HOTA
 [ ] Add keyboard control
 [ ] Separate to rooms
