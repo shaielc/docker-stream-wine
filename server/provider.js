@@ -8,27 +8,27 @@ import { createSocket } from 'dgram'
 
 robotjs.setMouseDelay(2)
 
-const [screenWidth,screenHeight, colorBits] = process.env.XVFB_RESOLUTION.split('x').map((v) => { return parseInt(v)})
+const [screenWidth, screenHeight, colorBits] = process.env.XVFB_RESOLUTION.split('x').map((v) => { return parseInt(v) })
 
 class StreamConnection {
-    constructor({port, protocol="udp"}) {
+    constructor({ port, protocol = "udp" }) {
         this.listeners = {}
         this.listenerCount = 0;
         this.port = port
-        this.client =  this.createClient(protocol)
-        this.event_name = protocol == "tcp"? "data" : "message"
+        this.client = this.createClient(protocol)
+        this.event_name = protocol == "tcp" ? "data" : "message"
     }
 
     createClient(protocol) {
         if (protocol == "tcp") {
-            return net.createConnection({port: this.port, host: "127.0.0.1"}, function () {console.log("Connected to gstream")})
-        } else if ( protocol == "udp" ) {
+            return net.createConnection({ port: this.port, host: "127.0.0.1" }, function () { console.log("Connected to gstream") })
+        } else if (protocol == "udp") {
             let client = createSocket("udp4")
             client.bind(this.port)
             return client
         }
     }
-    
+
     addListener = (listener) => {
         this.client.on(this.event_name, listener)
         this.client.on("close", (had_error) => console.error('StreamSocket', had_error))
@@ -36,16 +36,16 @@ class StreamConnection {
         this.listeners[this.listenerCount] = listener;
         return this.listenerCount;
     };
-    
+
     removeListener = (listener) => {
         this.client.removeListener("data", this.listeners[listener]);
     }
 }
 
-const videoConnection = new StreamConnection({port: 5000});
-const audioConnection = new StreamConnection({port: 5001});
+const videoConnection = new StreamConnection({ port: 5000 });
+const audioConnection = new StreamConnection({ port: 5001 });
 
-function createVideo(){
+function createVideo() {
     let video = new Video('video', "SendOnly")
     video.addH264Codec(97)
     video.addSSRC(43, 'video-send')
@@ -60,8 +60,22 @@ function createAudio() {
 }
 
 class PeerConnectionWrapper {
-    constructor({provider, videoConnection, audioConnection}) {
-        this.pc = new nodeDataChannel.PeerConnection('pc', { iceServers: [] })
+    constructor({ provider, videoConnection, audioConnection }) {
+        this.pc = new nodeDataChannel.PeerConnection(
+            'pc',
+            {
+                iceServers: [
+                    'stun:stun.l.google.com:19302',
+                    "turn:5e45fa421d26cd73ed0665da:3vCYdbKLnjry/X+G@standard.relay.metered.ca:80",
+                    "turn:5e45fa421d26cd73ed0665da:3vCYdbKLnjry/X+G@standard.relay.metered.ca:80?transport=tcp",
+                    "turn:5e45fa421d26cd73ed0665da:3vCYdbKLnjry/X+G@standard.relay.metered.ca:443",
+                    "turns:5e45fa421d26cd73ed0665da:3vCYdbKLnjry/X+G@standard.relay.metered.ca:443?transport=tcp",
+
+                ],
+                portRangeBegin: 10000,
+                portRangeEnd: 20000
+            }
+        )
         this.provider = provider
         this.offered = false
 
@@ -72,7 +86,7 @@ class PeerConnectionWrapper {
                 this.emitOffer(provider)
             }
         });
-        
+
         this.pc.onDataChannel((dc) => {
             this.controlChannel = dc
             dc.onMessage((msg) => {
@@ -88,7 +102,7 @@ class PeerConnectionWrapper {
         })
 
         this.audioTrack = this.pc.addTrack(createAudio())
-        this.listenerIdAudio = audioConnection.addListener((msg) =>{
+        this.listenerIdAudio = audioConnection.addListener((msg) => {
             if (this.audioTrack.isOpen()) {
                 this.audioTrack.sendMessageBinary(msg)
             }
@@ -117,7 +131,7 @@ class Provider {
             userJoinedClbk: this.userJoinedClbk,
             connectClbk: this.connectClbk
         });
-        
+
         this.wrapper = null;
     }
     connectClbk = () => {
@@ -125,13 +139,13 @@ class Provider {
     }
 
     userJoinedClbk = (msg) => {
-        this.wrapper = new PeerConnectionWrapper({provider: this, audioConnection, videoConnection})
-        this.signalingClient.emitResolution({width: screenWidth, height: screenHeight})
+        this.wrapper = new PeerConnectionWrapper({ provider: this, audioConnection, videoConnection })
+        this.signalingClient.emitResolution({ width: screenWidth, height: screenHeight })
     }
 
     answerClbk = (msg) => {
         console.log("Provider: answerClbk")
-        this.wrapper.pc.setRemoteDescription(msg.sdp, msg.type)    
+        this.wrapper.pc.setRemoteDescription(msg.sdp, msg.type)
     }
 
     candidateClbk = (candidate) => {
@@ -139,12 +153,12 @@ class Provider {
         this.wrapper.pc.addRemoteCandidate(candidate.candidate, candidate.sdpMid)
     }
 
-    offerClbk= (msg) =>  {
+    offerClbk = (msg) => {
         console.log("Provier: offerClbk")
         if (this.wrapper != null) {
             this.discard()
         }
-        this.wrapper = new PeerConnectionWrapper({provider: this, msg})
+        this.wrapper = new PeerConnectionWrapper({ provider: this, msg })
     }
 
     controlChannelClbk = (msg) => {
@@ -153,7 +167,7 @@ class Provider {
             robotjs.mouseToggle(msg.direction, "left")
             return
         }
-        else if(msg.type == MouseEvents.RIGHT_CLICK) {
+        else if (msg.type == MouseEvents.RIGHT_CLICK) {
             robotjs.mouseToggle(msg.direction, "right")
             return
         }
@@ -168,4 +182,4 @@ class Provider {
     }
 }
 
-export {Provider}
+export { Provider }
