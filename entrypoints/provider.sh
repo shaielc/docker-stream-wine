@@ -1,10 +1,6 @@
 #!/bin/bash
 set -x
 
-pushd src/provider/
-    node index.js &
-popd
-
 /usr/bin/Xvfb "${DISPLAY}" -screen "${XVFB_SCREEN}" "${XVFB_RESOLUTION}" -nolisten tcp -nolisten unix &
 pulseaudio -D
 sleep 1
@@ -35,5 +31,10 @@ pushd .wine/drive_c/GOG\ Games/HoMM\ 3\ Complete/
     wine Heroes3.exe &
 popd
 #/bin/bash
+
+
+pushd src/provider/
+    node index.js &
+popd
 
 wait

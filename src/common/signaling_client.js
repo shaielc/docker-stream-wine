@@ -3,7 +3,7 @@ console.log(typeof io, (typeof io) === 'undefined')
 var url = null
 if (typeof io == 'undefined') {
     promise = import("socket.io-client")
-    url = "http://localhost:9001"
+    url = process.env.BACKEND_URL
 } else {
     promise =new Promise((resolve) => resolve({io}));
     url = window.location.host
@@ -27,7 +27,9 @@ async function createClass({io}) {
                 },
                 withCredentials: true
             });
-            
+            this.socket.on("connect_error", (err) => {
+                console.error("Connection failed due to:", err.message, url)
+            })
             this.socket.on('connect', () => {
                 if (connectClbk) {connectClbk(this)}
             });
