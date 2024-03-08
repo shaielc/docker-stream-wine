@@ -1,7 +1,36 @@
 import SignalingClient from './signaling_client.js'
 
 const pc_config = {
-    bundlePolicy: "max-bundle"
+    bundlePolicy: "max-bundle",
+    iceServers: [
+        {
+          urls: "stun:stun.relay.metered.ca:80",
+        },
+        {
+          urls: "turn:standard.relay.metered.ca:80",
+          username: "5e45fa421d26cd73ed0665da",
+          credential: "3vCYdbKLnjry/X+G",
+        },
+        {
+          urls: "turn:standard.relay.metered.ca:80?transport=tcp",
+          username: "5e45fa421d26cd73ed0665da",
+          credential: "3vCYdbKLnjry/X+G",
+        },
+        {
+          urls: "turn:standard.relay.metered.ca:443",
+          username: "5e45fa421d26cd73ed0665da",
+          credential: "3vCYdbKLnjry/X+G",
+        },
+        {
+          urls: "turns:standard.relay.metered.ca:443?transport=tcp",
+          username: "5e45fa421d26cd73ed0665da",
+          credential: "3vCYdbKLnjry/X+G",
+        },
+    ],
+    portRange: {
+        min: 10000,
+        max: 20000,
+      }
 };
 
 function throttle(func, delay) {
