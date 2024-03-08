@@ -1,27 +1,24 @@
 import express from 'express';
-import http from 'http'
-import net from 'net'
 import {Server} from 'socket.io'
 import initSocketIO from './signaling.js'
 import {Provider} from './provider.js'
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
-import udp from "dgram";
 
 // var child = require('child_process');
 
 var app = express();
-app.use(express.static(dirname(fileURLToPath(import.meta.url)) + '/'));
+app.use(express.static(dirname(fileURLToPath(import.meta.url)) + "../client/"))
 const port = 9001;  //change port number is required
 
 //send the html page which holds the video tag
-app.get('/', function (req, res) {
-    res.send('index.html');
-});
+// app.get('/', function (req, res) {
+//     res.send('index.html');
+// });
 
-app.get('/client.js', function (req, res) {
-    res.send('client.js');
-});
+// app.get('/client.js', function (req, res) {
+//     res.send('../client/client.js');
+// });
 
 
 //stop the connection

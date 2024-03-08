@@ -26,11 +26,11 @@ RUN apt install -y libx11-dev libxtst-dev libpng++-dev
 RUN useradd wine
 USER wine
 WORKDIR /home/wine
-COPY --chown=wine server/package.json /home/wine/server/package.json
-RUN cd server && npm i
+COPY --chown=wine src/provider/package.json /home/wine/src/provider/package.json
+RUN cd provider && npm i
 
 COPY --chown=wine fake-home/.wine /home/wine/.wine
-COPY --chown=wine entrypoint.sh /usr/bin/entrypoint
-COPY --chown=wine server /home/wine/server
+COPY --chown=wine entrypoints/provider.sh /usr/bin/entrypoint
+COPY --chown=wine src /home/wine/src
 
 ENTRYPOINT ["/usr/bin/entrypoint"]

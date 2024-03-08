@@ -1,7 +1,7 @@
 import SignalingClient from './signaling_client.js'
 import nodeDataChannel from 'node-datachannel'
 import { Video, Audio } from 'node-datachannel'
-import { MouseEvents } from './protocol.js'
+import { MouseEvents } from '../common/protocol.js'
 import robotjs from 'robotjs'
 import net from 'net'
 import { createSocket } from 'dgram'

@@ -1,7 +1,7 @@
 #!/bin/bash
 set -x
 
-pushd server
+pushd src/provider/
     node index.js &
 popd
 
