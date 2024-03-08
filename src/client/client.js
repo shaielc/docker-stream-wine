@@ -1,5 +1,5 @@
 import { RTCConnection } from "./webrtc_browser.js";
-import { MouseEvents, EventSources } from '../../server/protocol.js'
+import { MouseEvents, EventSources } from '../common/protocol.js'
 
 function unmute(element) {
     element.muted = false;

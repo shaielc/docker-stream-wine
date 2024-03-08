@@ -27,7 +27,7 @@ RUN useradd wine
 USER wine
 WORKDIR /home/wine
 COPY --chown=wine src/provider/package.json /home/wine/src/provider/package.json
-RUN cd provider && npm i
+RUN cd src/provider && npm i
 
 COPY --chown=wine fake-home/.wine /home/wine/.wine
 COPY --chown=wine entrypoints/provider.sh /usr/bin/entrypoint

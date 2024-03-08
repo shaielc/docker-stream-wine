@@ -1,4 +1,4 @@
-pushd src/server/
-    node index.js &
-popd
+#!/bin/sh
+cd src/server/
+node index.js &
 wait

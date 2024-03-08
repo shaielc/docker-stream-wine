@@ -1,4 +1,4 @@
-import SignalingClient from './signaling_client.js'
+import SignalingClient from '../common/signaling_client.js'
 import nodeDataChannel from 'node-datachannel'
 import { Video, Audio } from 'node-datachannel'
 import { MouseEvents } from '../common/protocol.js'

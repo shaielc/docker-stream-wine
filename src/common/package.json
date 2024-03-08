@@ -1,0 +1,11 @@
+{
+    "name": "common",
+    "version": "1.0.0",
+    "description": "",
+    "type": "module",
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "socket.io-client": "^4.7.4"
+    }
+}

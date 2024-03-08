@@ -1,3 +1,3 @@
-import { Provider } from "./provider";
+import { Provider } from "./provider.js";
 
-const provider = Provider()
+const provider = new Provider()
