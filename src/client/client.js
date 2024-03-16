@@ -9,7 +9,6 @@ const btnToMouseEvent = {
     0: MouseEvents.CLICK,
     2: MouseEvents.RIGHT_CLICK,
     1: MouseEvents.MIDDLE_CLICK
-
 }
 
 class Screen {

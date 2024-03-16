@@ -1,8 +1,26 @@
 import express from 'express';
-import {Server} from 'socket.io'
+import { Server } from 'socket.io'
 import initSocketIO from './signaling.js'
+import { authMiddleware, socketIOAuthMiddleware } from "./auth.js";
+import session from "express-session";
+
 
 var app = express();
+const sessionMiddleware = session(
+    {
+        secret: process.env.EXPRESS_SESSION_SECRET_KEY,
+        resave: false,
+        saveUninitialized: false,
+        cookie: {
+            secure: process.env.DEVELOPMENT ? true : false,
+            maxAge: 24 * 60 * 60 * 1000, // 24 hours in milliseconds
+        }
+    }
+)
+app.use(
+    sessionMiddleware
+)
+app.use(authMiddleware)
 app.use(
     express.static(
         "../client/"
@@ -38,6 +56,8 @@ app.post('/stop', function (req, res) {
 
 const server = app.listen(port);
 const io = new Server(server);
+io.engine.use(sessionMiddleware)
+io.use(socketIOAuthMiddleware)
 
 new initSocketIO(io)
 console.log(`Stream App listening at http://localhost:${port}`)

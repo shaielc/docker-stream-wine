@@ -18,19 +18,28 @@ async function createClass({io}) {
             connectClbk,
             userJoinedClbk,
             resolutionClbk,
+            token=null
         }) {
-            this.socket = io(url, {
+            console.log(url)
+            const client_params = {
                 transports: ['websocket', 'polling', 'flashsocket'],
                 cors: {
                     origin: url,
                     credentials: true
                 },
                 withCredentials: true
-            });
+            }
+            if (token != null) {
+                client_params.extraHeaders = {
+                    cookie: token
+                }
+            }
+            this.socket = io(url, client_params);
             this.socket.on("connect_error", (err) => {
                 console.error("Connection failed due to:", err.message, url)
             })
             this.socket.on('connect', () => {
+
                 if (connectClbk) {connectClbk(this)}
             });
 

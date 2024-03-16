@@ -10,8 +10,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@local/common": "../common",
+    "axios": "^1.6.7",
+    "express": "^4.18.3",
     "node-datachannel": "^0.5.3",
-    "robotjs": "^0.6.0",
-    "@local/common": "../common"
+    "robotjs": "^0.6.0"
   }
 }

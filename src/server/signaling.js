@@ -1,30 +1,36 @@
+import { decode } from "jsonwebtoken";
+import { getUserUID } from "./auth.js";
+
 export default class signaling {
     constructor(io) {
         const rooms = {}
         const socketToRoom = {}
 
         io.on("connection", socket => {
-            socket.on("join", data => {
-                // let a new user join to the room
-                const roomId = data.room
-                socket.join(roomId);
-                socketToRoom[socket.id] = roomId;
+            const userUID = getUserUID(socket);
+            socket.join(userUID);
+            socket.to(userUID).emit("userJoined", )
+            
+            // TODO: handle rooms and watching
+            // socket.broadcast.emit("userJoined", socket.id)
+            // socket.on("join", data => {
+            //     // let a new user join to the room
+            //     const roomId = data.room
+            //     socket.join(roomId);
+            //     socketToRoom[socket.id] = roomId;
         
-                // persist the new user in the room
-                if (rooms[roomId]) {
-                    rooms[roomId].push({id: socket.id, name: data.name});
-                } else {
-                    rooms[roomId] = [{id: socket.id, name: data.name}];
-                }
+            //     // persist the new user in the room
+            //     if (rooms[roomId]) {
+            //         rooms[roomId].push({id: socket.id, name: data.name});
+            //     } else {
+            //         rooms[roomId] = [{id: socket.id, name: data.name}];
+            //     }
         
-                // sends a list of joined users to a new user
-                const users = rooms[data.room].filter(user => user.id !== socket.id);
-                io.sockets.to(socket.id).emit("room_users", users);
-                console.log("[joined] room:" + data.room + " name: " + data.name);
-            });
-
-            console.log("User joined ", socket.id)
-            socket.broadcast.emit("userJoined", socket.id)
+            //     // sends a list of joined users to a new user
+            //     const users = rooms[data.room].filter(user => user.id !== socket.id);
+            //     io.sockets.to(socket.id).emit("room_users", users);
+            //     console.log("[joined] room:" + data.room + " name: " + data.name);
+            // });
 
             socket.on("offer", sdp => {
                 socket.broadcast.emit("getOffer", sdp);

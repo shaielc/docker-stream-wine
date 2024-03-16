@@ -4,33 +4,14 @@ const pc_config = {
     bundlePolicy: "max-bundle",
     iceServers: [
         {
-          urls: "stun:stun.relay.metered.ca:80",
+          urls: "stun:stun.l.google.com:19302",
         },
         {
-          urls: "turn:standard.relay.metered.ca:80",
-          username: "5e45fa421d26cd73ed0665da",
-          credential: "3vCYdbKLnjry/X+G",
-        },
-        {
-          urls: "turn:standard.relay.metered.ca:80?transport=tcp",
-          username: "5e45fa421d26cd73ed0665da",
-          credential: "3vCYdbKLnjry/X+G",
-        },
-        {
-          urls: "turn:standard.relay.metered.ca:443",
-          username: "5e45fa421d26cd73ed0665da",
-          credential: "3vCYdbKLnjry/X+G",
-        },
-        {
-          urls: "turns:standard.relay.metered.ca:443?transport=tcp",
-          username: "5e45fa421d26cd73ed0665da",
-          credential: "3vCYdbKLnjry/X+G",
-        },
-    ],
-    portRange: {
-        min: 10000,
-        max: 20000,
-      }
+            urls: "turn:standard.relay.metered.ca:80",
+            username: "5e45fa421d26cd73ed0665da",
+            credential: "3vCYdbKLnjry/X+G",
+          },
+    ]
 };
 
 function throttle(func, delay) {
@@ -53,6 +34,9 @@ class RTCConnection {
         this.pc = null
         
         this.signalingClient = new SignalingClient({
+            userJoinedClbk: (msg) => {
+                console.log("userJoinedClbk", msg)
+            },
             answerClbk: (msg) => {
                 console.log("answerClbk", msg)
                 this.pc.setRemoteDescription( new RTCSessionDescription(msg) )
@@ -68,7 +52,7 @@ class RTCConnection {
             },
             offerClbk: (msg) => {
                 console.log("offerClbk")
-                this.createAnswer(msg)   
+                this.createAnswer(msg)
             },
             resolutionClbk
         })

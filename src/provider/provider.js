@@ -67,13 +67,7 @@ class PeerConnectionWrapper {
                 iceServers: [
                     'stun:stun.l.google.com:19302',
                     "turn:5e45fa421d26cd73ed0665da:3vCYdbKLnjry/X+G@standard.relay.metered.ca:80",
-                    "turn:5e45fa421d26cd73ed0665da:3vCYdbKLnjry/X+G@standard.relay.metered.ca:80?transport=tcp",
-                    "turn:5e45fa421d26cd73ed0665da:3vCYdbKLnjry/X+G@standard.relay.metered.ca:443",
-                    "turns:5e45fa421d26cd73ed0665da:3vCYdbKLnjry/X+G@standard.relay.metered.ca:443?transport=tcp",
-
                 ],
-                portRangeBegin: 10000,
-                portRangeEnd: 20000
             }
         )
         this.provider = provider
@@ -124,12 +118,13 @@ class PeerConnectionWrapper {
 }
 
 class Provider {
-    constructor() {
+    constructor({token}) {
         this.signalingClient = new SignalingClient({
             answerClbk: this.answerClbk,
             candidateClbk: this.candidateClbk,
             userJoinedClbk: this.userJoinedClbk,
-            connectClbk: this.connectClbk
+            connectClbk: this.connectClbk,
+            token
         });
 
         this.wrapper = null;

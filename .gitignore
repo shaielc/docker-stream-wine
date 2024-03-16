@@ -1,3 +1,4 @@
 .vscode
 fake-home
 node_modules
+*.env
