@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # For using git-bash
-MSYS_NO_PATHCONV=1 
+export MSYS_NO_PATHCONV=1 
 
 docker network inspect streamer || docker network create --driver bridge streamer
 
@@ -15,5 +15,5 @@ docker run --name=heroes3 \
  --env-file environment/provider.env \
  --net streamer \
  -p 8001:8001 \
- --rm -it heroes3 
+ --rm -it heroes3-provider
 #  --device=/dev/dri/:/dev/dri \
