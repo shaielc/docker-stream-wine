@@ -28,18 +28,31 @@ function throttle(func, delay) {
     }
 }
 
+const RTCStatus = {
+    PENDING: 0,
+    SIGNALING_CONNECTED: 1,
+    PROVIDER_FOUND: 2,
+    CONNECTION_INITIALIZED: 3,
+    CONNECTING: 4,
+    CONNECTED: 5,
+    FAILED: -1,
+
+}
+
 class RTCConnection {
-    constructor({trackClbk, resolutionClbk}) {
+    constructor({trackClbk, resolutionClbk, statusClbk}) {
         
         this.pc = null
+        this.status = RTCStatus.PENDING
         
         this.signalingClient = new SignalingClient({
             userJoinedClbk: (msg) => {
                 console.log("userJoinedClbk", msg)
+                this.updateStatus(RTCStatus.PROVIDER_FOUND)
             },
             answerClbk: (msg) => {
                 console.log("answerClbk", msg)
-                this.pc.setRemoteDescription( new RTCSessionDescription(msg) )
+                this.pc.setRemoteDescription( new RTCSessionDescription(msg))
             },
             candidateClbk: (candidate) => {
                 console.log("candidateClbk", candidate)
@@ -49,17 +62,27 @@ class RTCConnection {
             },
             connectClbk: (client) => {
                 console.log("connectClbk")
+                this.updateStatus(RTCStatus.SIGNALING_CONNECTED)
             },
             offerClbk: (msg) => {
                 console.log("offerClbk")
                 this.createAnswer(msg)
+                this.updateStatus(RTCStatus.CONNECTION_INITIALIZED)
             },
             resolutionClbk
         })
         
         this.trackClbk = trackClbk
+        this.statusClbk = statusClbk
         this.controlChannel = null
         this.controlChannelCreatedClbk = null    
+    }
+
+    updateStatus = (status) => {
+        this.status = status
+        if (this.statusClbk) {
+            this.statusClbk(status)
+        }
     }
 
     async createAnswer(sdp){
@@ -73,6 +96,20 @@ class RTCConnection {
                 )
                 console.log("Creating control channel")
                 this.createControlChannel()
+            }
+        }
+        
+        this.pc.onconnectionstatechange = (e) => {
+            switch (this.pc.connectionState ) {
+                case "connected":
+                    this.updateStatus(RTCStatus.CONNECTED)
+                    break
+                case "connecting":
+                    this.updateStatus(RTCStatus.CONNECTING)
+                    break
+                case "failed":
+                    this.updateStatus(RTCStatus.FAILED)
+                    break
             }
         }
         
@@ -132,6 +169,7 @@ class RTCConnection {
         }
         this.controlChannelCreatedClbk = clbk
     }
+
 }
 
-export {RTCConnection}
+export {RTCConnection, RTCStatus}

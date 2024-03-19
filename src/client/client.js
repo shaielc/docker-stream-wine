@@ -1,4 +1,4 @@
-import { RTCConnection } from "./webrtc_browser.js";
+import { RTCConnection, RTCStatus } from "./webrtc_browser.js";
 import { MouseEvents, EventSources } from '../common/protocol.js'
 
 function unmute(element) {
@@ -11,15 +11,66 @@ const btnToMouseEvent = {
     1: MouseEvents.MIDDLE_CLICK
 }
 
+class Status {
+    statusDisplayText = {
+        [RTCStatus.CONNECTION_INITIALIZED]: "Contacting server...",
+        [RTCStatus.CONNECTING]: "Connecting to provider...",
+        [RTCStatus.CONNECTED]: "Connected! Waiting for video to start...",
+        [RTCStatus.FAILED]: "Failed! :(",
+        [RTCStatus.SIGNALING_CONNECTED]: "Connection to server succeded. waiting on provider..",
+        [RTCStatus.PROVIDER_FOUND]: "Provider found. waiting for stream offer...",
+    }
+
+    setHidden(flag) {
+        if (flag) {
+            this.target_element.style.display = "none"
+        }
+        else {
+            this.target_element.style.display = "flex"
+        }
+    }
+
+    constructor({target_element}) {
+        this.target_element = document.getElementById(target_element)
+        this.setHidden(true)
+        
+        this.spinner = document.createElement("div")
+        this.spinner.id = "spinner"
+        this.target_element.append(this.spinner)
+
+        this.span = document.createElement("div")
+        this.target_element.append(this.span)
+    }
+
+    setText = (text) => {
+        this.span.textContent = text
+    }
+
+    updateStatus = (status) => {
+        let hidden = false
+        if (status == "video_can_play") {
+            hidden = true;
+        } else {
+            hidden = false;
+            this.setText(this.statusDisplayText[status])
+        }
+
+        this.setHidden(hidden)
+    }
+}
+
 class Screen {
-    constructor({target_element, targetHeight, targetWidth}) {
+    constructor({target_element, targetHeight, targetWidth, statusCallback}) {
         this.targetHeight = targetHeight
         this.targetWidth = targetWidth
         this.target_element = document.getElementById(target_element);
         this.firstClick = false
         this.conn = null
-
+        this.statusCallback = statusCallback
         this.target_element.addEventListener("click", this.handleMouseClick)
+        this.target_element.addEventListener("canplay", (ev) => {
+            statusCallback("video_can_play")
+        })
         
     }
 
@@ -49,7 +100,8 @@ class Screen {
     firstClickClbk = () => {
         this.conn = new RTCConnection({
             trackClbk: this.trackClbk,
-            resolutionClbk: this.resolutionClbk
+            resolutionClbk: this.resolutionClbk,
+            statusClbk: this.statusCallback
         });
         unmute(this.target_element)
         this.target_element.addEventListener("mousemove", this.handleMouseMove)
@@ -199,5 +251,6 @@ class Containter {
     }
 }
 
-const screen = new Screen({target_element: "vidStream", targetHeight: 600, targetWidth: 800})
+const status = new Status({target_element: "connectionStatus"})
+const screen = new Screen({target_element: "vidStream", targetHeight: 600, targetWidth: 800, statusCallback: status.updateStatus})
 const container = new Containter({element_id: "draggable"})
