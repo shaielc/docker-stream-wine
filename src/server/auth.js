@@ -40,7 +40,6 @@ const authenticateCode = async ({ req, code, provider }) => {
     // Set the tokens in a secure session or cookie
     req.session.accessToken = data.access_token;
     req.session.refreshToken = data.refresh_token;
-    console.log(data)
 
 }
 
@@ -75,7 +74,6 @@ const socketIOAuthMiddleware = (socket, next) => {
 
 const getUserUID = (socket) => {
     const decodedToken = decode(socket.request.session.accessToken);
-    console.log(decodedToken)
     return decodedToken['sub']
 }
 
