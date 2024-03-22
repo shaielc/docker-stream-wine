@@ -56,8 +56,16 @@ const authenticate = async (req,res) => {
     }
 }
 
+async function checkTokenValid() {
+    try {
+        (await axios.get(serverUrl, {withCredentials: true, maxRedirects: 0})).status === 200
+    } catch {
+        return false
+    }
+}
+
 const isAuthenticated = async () => {
-    return authenticationStatus.token != null && (await axios.get(serverUrl, {withCredentials: true})).status === 200;
+    return authenticationStatus.token != null && await checkTokenValid();
 }
 
 export {

@@ -50,14 +50,14 @@ const authMiddleware = async (req, res, next) => {
             const { code, provider} = req.query;
             if (!code) {
                 // No authorization code, redirect to the Cognito Hosted UI
-                return res.redirect(cognitoHostedUI);
+                return res.status(302).redirect(cognitoHostedUI);
             }
             await authenticateCode({req, code, provider});
         } catch (err) {
             console.error('Error authenticating:', err);
             return res.status(500).json({ error: 'Failed to authenticate' });
         }
-    }
+    }    
     next()
 };
 const socketIOAuthMiddleware = (socket, next) => {

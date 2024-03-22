@@ -36,7 +36,7 @@ async function createClass({io}) {
             }
             this.socket = io(url, client_params);
             this.socket.on("connect_error", (err) => {
-                console.error("Connection failed due to:", err.message, url)
+                console.error("Connection failed due to:", err.message, url)          
             })
             this.socket.on('connect', () => {
 
@@ -79,6 +79,10 @@ async function createClass({io}) {
         }
         join(room) {
             this.socket.join(room)
+        }
+
+        isConnected() {
+            this.socket.connected;
         }
     }    
 }

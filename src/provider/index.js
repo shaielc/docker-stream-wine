@@ -20,8 +20,7 @@ app.get("/", async (req, res) => {
         return res.send("Provider authentication failed")
     }
 
-    console.log({token})
-    if (provider == null) {
+    if (provider == null || ! provider.signalingClient.connected) {
         provider = new Provider({token})
     }
     res.send("Provider authenticated.");
