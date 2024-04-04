@@ -36,6 +36,8 @@ const RTCStatus = {
     CONNECTING: 4,
     CONNECTED: 5,
     FAILED: -1,
+    CLOSED: -2,
+    VIDEO_VALID: 7
 
 }
 
@@ -110,6 +112,9 @@ class RTCConnection {
                 case "failed":
                     this.updateStatus(RTCStatus.FAILED)
                     break
+                case "closed":
+                    this.updateStatus(RTCStatus.CLOSED)
+                    break;
             }
         }
         

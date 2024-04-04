@@ -43,8 +43,14 @@ const authenticateCode = async ({ req, code, provider }) => {
 
 }
 
+function insecure() {
+    return process.env.SECURITY && process.env.SECURITY.toLowerCase() === "insecure"
+}
 
 const authMiddleware = async (req, res, next) => {
+    if (insecure()) {
+        return next();
+    }
     if (!req.session.accessToken) {
         try {
             const { code, provider} = req.query;
@@ -62,6 +68,11 @@ const authMiddleware = async (req, res, next) => {
 };
 const socketIOAuthMiddleware = (socket, next) => {
     const session = socket.request.session;
+    console.log(insecure())
+
+    if (insecure()) {
+        return next()
+    }
 
     if (!session || !session.accessToken) {
         // No session or access token, reject the connection
@@ -74,7 +85,7 @@ const socketIOAuthMiddleware = (socket, next) => {
 
 const getUserUID = (socket) => {
     const decodedToken = decode(socket.request.session.accessToken);
-    return decodedToken['sub']
+    return insecure() ? "dev" : decodedToken['sub']
 }
 
 export {

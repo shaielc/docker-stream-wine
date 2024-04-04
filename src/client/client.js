@@ -16,9 +16,10 @@ class Status {
         [RTCStatus.CONNECTION_INITIALIZED]: "Contacting server...",
         [RTCStatus.CONNECTING]: "Connecting to provider...",
         [RTCStatus.CONNECTED]: "Connected! Waiting for video to start...",
-        [RTCStatus.FAILED]: "Failed! :(",
+        [RTCStatus.FAILED]: "Connection failed! Retrying...",
         [RTCStatus.SIGNALING_CONNECTED]: "Connection to server succeded. waiting on provider..",
         [RTCStatus.PROVIDER_FOUND]: "Provider found. waiting for stream offer...",
+        [RTCStatus.CLOSED]: "Connection closed."
     }
 
     setHidden(flag) {
@@ -47,8 +48,9 @@ class Status {
     }
 
     updateStatus = (status) => {
+        console.log(status)
         let hidden = false
-        if (status == "video_can_play") {
+        if (status == RTCStatus.VIDEO_VALID) {
             hidden = true;
         } else {
             hidden = false;
@@ -69,7 +71,7 @@ class Screen {
         this.statusCallback = statusCallback
         this.target_element.addEventListener("click", this.handleMouseClick)
         this.target_element.addEventListener("canplay", (ev) => {
-            statusCallback("video_can_play")
+            statusCallback(RTCStatus.VIDEO_VALID)
         })
         
     }
