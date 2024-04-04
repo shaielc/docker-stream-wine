@@ -65,7 +65,7 @@ class PeerConnectionWrapper {
             'pc',
             {
                 iceServers: [
-                    'stun:stun.l.google.com:19302',
+                    "stun:stun.relay.metered.ca:80",
                     "turn:5e45fa421d26cd73ed0665da:3vCYdbKLnjry/X+G@standard.relay.metered.ca:80",
                 ],
             }

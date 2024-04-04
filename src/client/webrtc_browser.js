@@ -4,7 +4,7 @@ const pc_config = {
     bundlePolicy: "max-bundle",
     iceServers: [
         {
-          urls: "stun:stun.l.google.com:19302",
+            urls: "stun:stun.relay.metered.ca:80",
         },
         {
             urls: "turn:standard.relay.metered.ca:80",
@@ -46,6 +46,11 @@ class RTCConnection {
         
         this.pc = null
         this.status = RTCStatus.PENDING
+        this.completedGathering = false;
+        this.remoteSdp = null;
+        this.track = null;
+
+        this.createPeerConnection();
         
         this.signalingClient = new SignalingClient({
             userJoinedClbk: (msg) => {
@@ -68,8 +73,13 @@ class RTCConnection {
             },
             offerClbk: (msg) => {
                 console.log("offerClbk")
-                this.createAnswer(msg)
-                this.updateStatus(RTCStatus.CONNECTION_INITIALIZED)
+                this.remoteSdp = msg;
+                this.pc.setRemoteDescription(this.remoteSdp).then(
+                () => {
+                    this.createAnswer()
+                    this.updateStatus(RTCStatus.CONNECTION_INITIALIZED)
+                }
+                ).catch(console.error)
             },
             resolutionClbk
         })
@@ -87,23 +97,28 @@ class RTCConnection {
         }
     }
 
-    async createAnswer(sdp){
+    createPeerConnection() {
         this.pc = new RTCPeerConnection(pc_config);
+
+        
         
         this.pc.onicegatheringstatechange = (e) => {
             if (this.pc.iceGatheringState === "complete") {
                 console.log("Gathering completed")
+                this.completedGathering = true;
+                
                 this.signalingClient.emitAnswer(
                     this.pc.localDescription
                 )
-                console.log("Creating control channel")
-                this.createControlChannel()
             }
         }
-        
+
         this.pc.onconnectionstatechange = (e) => {
             switch (this.pc.connectionState ) {
                 case "connected":
+                    console.log("Creating control channel")
+                    this.trackClbk(this.track)
+                    this.createControlChannel()
                     this.updateStatus(RTCStatus.CONNECTED)
                     break
                 case "connecting":
@@ -117,21 +132,28 @@ class RTCConnection {
                     break;
             }
         }
-        
-        this.pc.ontrack = this.trackClbk
-        await this.pc.setRemoteDescription(sdp)
+
+        this.pc.ontrack = (track) => {
+            console.log("TRACK", track)
+            this.track = track
+            console.log(this, this.track)
+        };
+    }
+
+    async createAnswer(){
+        console.log(this.remoteSdp, this.completedGathering)
+        if (this.remoteSdp === null) {
+            return
+        }
         
         console.log("Set remote description success");
-        
         let local_sdp = await this.pc.createAnswer({
-                    offerToReceiveVideo: true,
-                    offerToReceiveAudio: true,
-                })
+            offerToReceiveVideo: true,
+            offerToReceiveAudio: true,
+        })
 
         console.log("Setting local sdp")
-        this.pc.setLocalDescription(local_sdp);
-
-        
+        await this.pc.setLocalDescription(local_sdp);
     };
 
     createControlChannel() {

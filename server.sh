@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# For using git-bash
+export MSYS_NO_PATHCONV=1 
 
 docker network inspect streamer || docker network create --driver bridge streamer
 PORT=${PORT:-9001}
