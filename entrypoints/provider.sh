@@ -11,18 +11,19 @@ gst-launch-1.0 ximagesrc display-name=$DISPLAY use-damage=0 \
 ! 'video/x-raw,width=(int)800,height=(int)640,framerate=15/1' \
 ! videoconvert \
 ! queue \
-! x264enc tune=zerolatency bitrate=1024 key-int-max=30 speed-preset=1 \
+! x264enc tune=zerolatency bitrate=400 speed-preset=4 \
 ! video/x-h264, profile=constrained-baseline \
 ! rtph264pay pt=97 ssrc=43 \
 ! queue \
 ! udpsink host=0.0.0.0 port=5000 &
 
 gst-launch-1.0 pulsesrc \
-! audio/x-raw,rate=12000,channels=1 \
+! audio/x-raw,rate=16000,channels=1 \
 ! audioconvert \
 ! queue \
 ! opusenc \
 ! rtpopuspay \
+! 'application/x-rtp,payload=(int)96,ssrc=(uint)42' \
 ! queue \
 ! udpsink host=127.0.0.1 port=5001 &
 
